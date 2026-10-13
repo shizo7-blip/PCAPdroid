@@ -31,6 +31,18 @@ android {
     }
 
     signingConfigs {
+        // Optional stable signing key for CI. Never commit the keystore or passwords.
+        if (System.getenv("FIREWALL_KEYSTORE_PATH") &&
+            System.getenv("FIREWALL_KEYSTORE_PASSWORD") &&
+            System.getenv("FIREWALL_KEY_ALIAS") &&
+            System.getenv("FIREWALL_KEY_PASSWORD")) {
+            firewallDebug {
+                storeFile file(System.getenv("FIREWALL_KEYSTORE_PATH"))
+                storePassword System.getenv("FIREWALL_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("FIREWALL_KEY_ALIAS")
+                keyPassword System.getenv("FIREWALL_KEY_PASSWORD")
+            }
+        }
         release {
             // NOTE: v1 is still needed, as v2 is only supported since API 24
             enableV1Signing true
@@ -46,6 +58,9 @@ android {
             signingConfig signingConfigs.release
         }
         debug {
+            if (signingConfigs.findByName("firewallDebug") != null) {
+                signingConfig signingConfigs.firewallDebug
+            }
             // Use a different app ID for debug to allow its coexistence with release builds
             applicationIdSuffix '.debug'
             versionNameSuffix '-beta'
