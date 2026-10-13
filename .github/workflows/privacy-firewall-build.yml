@@ -1,0 +1,36 @@
+name: Privacy Firewall Android CI
+
+on:
+  push:
+    branches: [feature/privacy-firewall]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify Gradle wrapper
+        run: test -f gradlew && chmod +x gradlew
+      - name: Unit tests
+        run: ./gradlew test --stacktrace
+      - name: Build debug APK
+        run: ./gradlew assembleStandardDebug -PdoNotStrip --stacktrace
+      - name: Publish APK for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: privacy-firewall-debug-apk
+          path: app/build/outputs/apk/**/*debug*.apk
+          if-no-files-found: error
