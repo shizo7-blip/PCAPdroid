@@ -238,8 +238,8 @@ public class Billing {
     }
 
     public boolean isFirewallVisible() {
-        if(!isPurchased(Billing.FIREWALL_SKU))
-            return false;
+        // GPL fork: make the existing local VPN firewall available without a purchase.
+        // Root capture and offline PCAP playback still cannot enforce firewall rules.
 
         if(CaptureService.isServiceActive())
             return !CaptureService.isCapturingAsRoot() && !CaptureService.isReadingFromPcapFile();
