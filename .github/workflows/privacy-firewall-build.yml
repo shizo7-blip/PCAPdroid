@@ -26,6 +26,22 @@ jobs:
         run: test -f gradlew && chmod +x gradlew
       - name: Unit tests
         run: ./gradlew test --stacktrace
+      - name: Configure stable signing key
+        env:
+          FIREWALL_KEYSTORE_B64: ${{ secrets.FIREWALL_KEYSTORE_B64 }}
+          FIREWALL_KEYSTORE_PASSWORD: ${{ secrets.FIREWALL_KEYSTORE_PASSWORD }}
+          FIREWALL_KEY_ALIAS: ${{ secrets.FIREWALL_KEY_ALIAS }}
+          FIREWALL_KEY_PASSWORD: ${{ secrets.FIREWALL_KEY_PASSWORD }}
+        run: |
+          if [ -n "$FIREWALL_KEYSTORE_B64" ] && [ -n "$FIREWALL_KEYSTORE_PASSWORD" ] && [ -n "$FIREWALL_KEY_ALIAS" ] && [ -n "$FIREWALL_KEY_PASSWORD" ]; then
+            echo "$FIREWALL_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/firewall-signing.jks"
+            echo "FIREWALL_KEYSTORE_PATH=$RUNNER_TEMP/firewall-signing.jks" >> "$GITHUB_ENV"
+            echo "FIREWALL_KEYSTORE_PASSWORD=$FIREWALL_KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "FIREWALL_KEY_ALIAS=$FIREWALL_KEY_ALIAS" >> "$GITHUB_ENV"
+            echo "FIREWALL_KEY_PASSWORD=$FIREWALL_KEY_PASSWORD" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No stable signing secrets configured; APK will use an ephemeral debug key and may not update an earlier build."
+          fi
       - name: Build debug APK
         run: ./gradlew assembleStandardDebug -PdoNotStrip --stacktrace
       - name: Publish APK for inspection
