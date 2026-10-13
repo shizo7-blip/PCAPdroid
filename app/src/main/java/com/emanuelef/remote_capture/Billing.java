@@ -100,6 +100,9 @@ public class Billing {
     }
 
     public boolean isAvailable(String sku) {
+        // The GPL fork provides its built-in firewall without a purchase.
+        if(FIREWALL_SKU.equals(sku))
+            return true;
         return isPurchased(sku);
     }
 
