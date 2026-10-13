@@ -62,7 +62,6 @@ import com.emanuelef.remote_capture.model.Prefs;
 
 public class FirewallStatus extends Fragment implements MenuProvider {
     private static final String TAG = "FirewallStatus";
-    private static boolean whitelistWarningAck = false;
     private Handler mHandler;
     private SharedPreferences mPrefs;
     private Menu mMenu;
@@ -163,12 +162,11 @@ public class FirewallStatus extends Fragment implements MenuProvider {
             return true;
         } else if(id == R.id.whitelist_mode) {
             boolean checked = !item.isChecked();
-            if(checked && !whitelistWarningAck) {
+            if(checked) {
                 AlertDialog dialog = new AlertDialog.Builder(requireContext())
                         .setTitle(R.string.whitelist_mode)
                         .setMessage(R.string.firewall_whitelist_notice)
                         .setPositiveButton(R.string.ok, (d, whichButton) -> {
-                            whitelistWarningAck = true;
                             item.setChecked(true);
                             mPrefs.edit().putBoolean(Prefs.PREF_FIREWALL_WHITELIST_MODE, true).apply();
                             reloadMode(true);
