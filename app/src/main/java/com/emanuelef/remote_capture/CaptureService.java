@@ -498,7 +498,7 @@ public class CaptureService extends VpnService implements Runnable {
         // started, it determines the capture mode from the persistent preferences rather than
         // from the current settings of this capture
         mFirewallSupported = !mSettings.readFromPcap() && !mSettings.root_capture
-                && mBilling.isPurchased(Billing.FIREWALL_SKU);
+                && mBilling.isAvailable(Billing.FIREWALL_SKU);
         mFirewallEnabled = mFirewallSupported && mPrefs.getBoolean(Prefs.PREF_FIREWALL, true);
 
         if(!mSettings.root_capture && !mSettings.readFromPcap()) {
